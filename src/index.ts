@@ -1,41 +1,48 @@
+// 返回校验后的信息格式
 const vdtRes = (res: boolean, msg?: string) => {
     return {
         res,
         msg
     };
 };
-// 自定义解决办法
-const vdtDefault = (val: string) => {
-    switch (val) {
+// 模板校验方法
+const vdtDefault = (type: string, val: any) => {
+    switch (type) {
         case "empty":
-            if (String(val).trim() === "") {
+            if (val === "") {
                 return vdtRes(false);
             } else {
                 return vdtRes(true);
             }
-            break;
+        case "qq":
+            return /^[1-9][0-9]{4,}$/.test(val);
+        case "ip":
+            return /^(?:[0-9]{1,3}.){3}[0-9]{1,3}$/.test(val);
+        case "mail":
+            return /^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val);
         default:
             return vdtRes(true);
     }
 };
-const vdt = (conf: object) => {
+const vdtFn = (conf: object) => {
     const fn: object = {};
     const list = Object.keys(conf);
+
     for (const key of list) {
         const fnArr = [];
-        for (const i of conf[key]) {
+        for (const item of conf[key]) {
             // 若存在默认解决办法
-            if (conf[key][i].default) {
-                fnArr[i] = val => {
-                    return vdtDefault(val);
+            if (item.default) {
+                fnArr[key] = val => {
+                    return vdtDefault(item.default, val);
                 };
-            } else if (conf[key][i].fn) {
+            } else if (item.fn) {
                 // 若存在自定义解决办法
-                fnArr[i] = val => {
-                    return vdtRes(conf[key][i].fn(val), conf[key][i].msg);
+                fnArr[key] = val => {
+                    return vdtRes(item.fn(val), item.msg);
                 };
             } else {
-                fnArr[i] = null;
+                fnArr[key] = null;
             }
         }
         fn[key] = (val: any) => {
@@ -54,8 +61,22 @@ const vdt = (conf: object) => {
             return vdtRes(true);
         };
     }
+
     return fn;
 };
+
+export const vdt: any = vdtFn({
+    test: [{
+        msg: "不能为空",
+        default: "empty"
+    }, {
+        msg: "qq号填写错误",
+        default: "qq"
+    }]
+})
+
+console.log(vdt.test(''))
+export default vdt
 
 // const Vdt = {
 //     test: [
