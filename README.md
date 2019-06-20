@@ -133,3 +133,8 @@ console.log(Vdt.test("123").then(res => console.log(res)) )
 - qq: 校验qq
 - ip: 校验ip
 - mail: 校验mail
+
+
+## 请我喝杯果汁呗～
+
+![Image text](https://github.com/Javison666/jj-vdt/blob/master/image/alipay.jpg?raw=true)![Image text](https://github.com/Javison666/jj-vdt/blob/master/image/wechat.jpg?raw=true)
