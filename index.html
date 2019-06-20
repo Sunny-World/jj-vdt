@@ -7,6 +7,15 @@
 <script src="./common/vdt.js"></script>
 <script>
     console.log("以下为公共包")
-    // console.log(vdt.test(''))
+    const Vdt = vdt({
+        test:[{
+            msg:'wrong',
+            default:'empty'
+        },{
+            msg:'error',
+            default:'qq'
+        }]
+    })
+    console.log(Vdt.test(''))
 </script>
 <div></div>

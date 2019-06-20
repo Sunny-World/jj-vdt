@@ -34,11 +34,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var _this = this;
-function isPromise(obj) {
+var isPromise = function (obj) {
     return (!!obj &&
         (typeof obj === "object" || typeof obj === "function") &&
         typeof obj.then === "function");
-}
+};
 // 返回校验后的信息格式
 var vdtRes = function (res, msg) {
     if (res) {
@@ -70,15 +70,24 @@ var vdtDefault = function (type, val, msg) {
         case "mail":
             return vdtRes(/^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val), msg);
         default:
+            console.error("jj-vdt:没有匹配的校验类型，请检查default值");
             return vdtRes(true, msg);
     }
 };
-var vdtFn = function (conf) {
+// 注册自定义配置
+export var vdt = function (conf) {
     var fn = {};
     var list = Object.keys(conf);
     var _loop_1 = function (key) {
         var fnArr = [];
         var isAsync = false;
+        var confArr = void 0;
+        if (Object.prototype.toString.call(conf[key]) === '[object Array]') {
+            confArr = conf[key];
+        }
+        else {
+            confArr = [conf[key]];
+        }
         var _loop_2 = function (item) {
             // 若存在默认解决办法
             if (item.default) {
@@ -112,8 +121,8 @@ var vdtFn = function (conf) {
                 fnArr.push(null);
             }
         };
-        for (var _i = 0, _a = conf[key]; _i < _a.length; _i++) {
-            var item = _a[_i];
+        for (var _i = 0, confArr_1 = confArr; _i < confArr_1.length; _i++) {
+            var item = confArr_1[_i];
             _loop_2(item);
         }
         if (fnArr.length === 0) {
@@ -169,45 +178,29 @@ var vdtFn = function (conf) {
     }
     return fn;
 };
-export var vdt = vdtFn({
-    qq: [
-        {
-            msg: "不能为空",
-            default: "empty"
-        },
-        {
-            msg: "qq号填写错误",
-            default: "qq"
-        },
-        {
-            msg: "自定错误",
-            fn: function (val) {
-                return new Promise(function (resolve) {
-                    var res = val ? false : true;
-                    resolve(res);
-                });
-            }
-        }
-    ]
-});
-vdt.qq("12345").then(function (res) {
-    console.log(res);
-});
-// console.log();
-export default vdt;
-// const Vdt = {
-//     test: [
+// const testVdt =  vdt({
+//     qq: [
 //         {
 //             msg: "不能为空",
 //             default: "empty"
 //         },
 //         {
-//             msg: "输入错误",
-//             fn: val => {
-//                 // tslint:disable-next-line:align
-//                 return /\d/.test(val);
+//             msg: "qq号填写错误",
+//             default: "qq"
+//         },
+//         {
+//             msg: "自定错误",
+//             fn: (val: any) => {
+//                 return new Promise(resolve => {
+//                     const res = val ? false : true;
+//                     resolve(res);
+//                 });
 //             }
 //         }
 //     ]
-// };
+// });
+// testVdt.qq("12345").then(res => {
+//     console.log(res);
+// });
+export default vdt;
 //# sourceMappingURL=index.js.map

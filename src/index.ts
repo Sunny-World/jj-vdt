@@ -1,4 +1,10 @@
-function isPromise(obj) {
+import {
+    ResStru,
+    ConfStru,
+    ExportStuc
+} from "./interface"
+
+const isPromise = (obj): boolean => {
     return (
         !!obj &&
         (typeof obj === "object" || typeof obj === "function") &&
@@ -6,7 +12,7 @@ function isPromise(obj) {
     );
 }
 // 返回校验后的信息格式
-const vdtRes = (res: boolean, msg?: string) => {
+const vdtRes = (res: boolean, msg?: string): ResStru => {
     if (res) {
         return {
             res
@@ -19,7 +25,7 @@ const vdtRes = (res: boolean, msg?: string) => {
     }
 };
 // 模板校验方法
-const vdtDefault = (type: string, val: any, msg: string) => {
+const vdtDefault = (type: string, val: any, msg: string): ResStru => {
     switch (type) {
         case "empty":
             if (val === "") {
@@ -37,16 +43,24 @@ const vdtDefault = (type: string, val: any, msg: string) => {
                 msg
             );
         default:
+            console.error("jj-vdt:没有匹配的校验类型，请检查default值")
             return vdtRes(true, msg);
     }
 };
-const vdtFn = (conf: any) => {
-    const fn: any = {};
+// 注册自定义配置
+export const vdt = (conf: ConfStru): ExportStuc => {
+    const fn: ExportStuc = {};
     const list = Object.keys(conf);
     for (const key of list) {
         const fnArr = [];
         let isAsync = false;
-        for (const item of conf[key]) {
+        let confArr;
+        if(Object.prototype.toString.call(conf[key]) === '[object Array]'){
+            confArr=conf[key]
+        }else{
+            confArr=[conf[key]]
+        }
+        for (const item of confArr) {
             // 若存在默认解决办法
             if (item.default) {
                 fnArr.push(val => {
@@ -60,7 +74,7 @@ const vdtFn = (conf: any) => {
                         return vdtRes(await item.fn(val), item.msg);
                     });
                 } else {
-                    fnArr.push(val => {
+                    fnArr.push((val): ResStru => {
                         return vdtRes(item.fn(val), item.msg);
                     });
                 }
@@ -69,13 +83,13 @@ const vdtFn = (conf: any) => {
             }
         }
         if (fnArr.length === 0) {
-            fn[key] = () => vdtRes(true);
+            fn[key] = (): ResStru => vdtRes(true);
         } else {
             if (isAsync) {
                 fn[key] = async (val: any) => {
                     for (const fnItem of fnArr) {
                         if (fnItem !== null) {
-                            const result = await fnItem(val);
+                            const result: ResStru = await fnItem(val);
                             if (!result.res) {
                                 return result;
                             }
@@ -84,7 +98,7 @@ const vdtFn = (conf: any) => {
                     return vdtRes(true);
                 };
             } else {
-                fn[key] = (val: any) => {
+                fn[key] = (val: any): ResStru => {
                     for (const fnItem of fnArr) {
                         if (fnItem !== null) {
                             const result = fnItem(val);
@@ -100,46 +114,28 @@ const vdtFn = (conf: any) => {
     }
     return fn;
 };
-export const vdt: any = vdtFn({
-    qq: [
-        {
-            msg: "不能为空",
-            default: "empty"
-        },
-
-        {
-            msg: "qq号填写错误",
-            default: "qq"
-        },
-        {
-            msg: "自定错误",
-            fn: val => {
-                return new Promise(resolve => {
-                    const res = val ? false : true;
-                    resolve(res);
-                });
-            }
-        }
-    ]
-});
-vdt.qq("12345").then(res => {
-    console.log(res);
-});
-// console.log();
-export default vdt;
-
-// const Vdt = {
-//     test: [
+// const testVdt =  vdt({
+//     qq: [
 //         {
 //             msg: "不能为空",
 //             default: "empty"
 //         },
 //         {
-//             msg: "输入错误",
-//             fn: val => {
-//                 // tslint:disable-next-line:align
-//                 return /\d/.test(val);
+//             msg: "qq号填写错误",
+//             default: "qq"
+//         },
+//         {
+//             msg: "自定错误",
+//             fn: (val: any) => {
+//                 return new Promise(resolve => {
+//                     const res = val ? false : true;
+//                     resolve(res);
+//                 });
 //             }
 //         }
 //     ]
-// };
+// });
+// testVdt.qq("12345").then(res => {
+//     console.log(res);
+// });
+export default vdt;
