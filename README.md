@@ -1,5 +1,8 @@
-# 校验中心
-
+# jj-vdt 校验中心
+## 安装
+```js
+import vdt from 'jj-vdt'
+```
 ## 
 ```js
 const Vdt = {
