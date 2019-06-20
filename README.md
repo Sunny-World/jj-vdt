@@ -38,9 +38,9 @@ console.log(Vdt.testA(""))
 //     msg:"请输入***"
 // }
 console.log(Vdt.test("1"))
-{
-    res:true,
-}
+// {
+//     res:true,
+// }
 ```
 ### 管道模式（ 适用于多重校验 ）
 ```js
