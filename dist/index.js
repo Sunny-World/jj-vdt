@@ -70,7 +70,7 @@ var vdtDefault = function (type, val, msg) {
         case "mail":
             return vdtRes(/^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val), msg);
         default:
-            console.error("jj-vdt:没有匹配的校验类型，请检查default值");
+            console.error("jj-vdt: There is no matching check type. Check the default value");
             return vdtRes(true, msg);
     }
 };
@@ -82,7 +82,7 @@ export var vdt = function (conf) {
         var fnArr = [];
         var isAsync = false;
         var confArr = void 0;
-        if (Object.prototype.toString.call(conf[key]) === '[object Array]') {
+        if (Object.prototype.toString.call(conf[key]) === "[object Array]") {
             confArr = conf[key];
         }
         else {
@@ -95,9 +95,9 @@ export var vdt = function (conf) {
                     return vdtDefault(item.default, val, item.msg);
                 });
             }
-            else if (item.fn) {
+            else if (item.fn || item.asyncFn) {
                 // 若存在自定义解决办法
-                if (isPromise(item.fn(""))) {
+                if (item.fn === undefined && item.asyncFn !== undefined) {
                     isAsync = true;
                     fnArr.push(function (val) { return __awaiter(_this, void 0, void 0, function () {
                         var _a;
@@ -105,7 +105,7 @@ export var vdt = function (conf) {
                             switch (_b.label) {
                                 case 0:
                                     _a = vdtRes;
-                                    return [4 /*yield*/, item.fn(val)];
+                                    return [4 /*yield*/, item.asyncFn(val)];
                                 case 1: return [2 /*return*/, _a.apply(void 0, [_b.sent(), item.msg])];
                             }
                         });
@@ -178,29 +178,97 @@ export var vdt = function (conf) {
     }
     return fn;
 };
-// const testVdt =  vdt({
-//     qq: [
-//         {
-//             msg: "不能为空",
-//             default: "empty"
-//         },
-//         {
-//             msg: "qq号填写错误",
-//             default: "qq"
-//         },
-//         {
-//             msg: "自定错误",
-//             fn: (val: any) => {
-//                 return new Promise(resolve => {
-//                     const res = val ? false : true;
-//                     resolve(res);
-//                 });
-//             }
-//         }
-//     ]
-// });
-// testVdt.qq("12345").then(res => {
-//     console.log(res);
-// });
+export var vdtX = {
+    conf: null,
+    init: function (obj) {
+        vdtX.conf = obj;
+    },
+    check: function (obj) {
+        if (vdtX.conf === null) {
+            return console.error("jj-vdt: vdt not yet configured, please to vdtX.init!");
+        }
+        for (var i in obj) {
+            if (/\d+/.test(i)) {
+                console.error("jj-vdt: ${i} - Do not use numbers as keys, which can lead to orderly traversal!");
+            }
+            if (vdtX.conf[i] === undefined && obj[i].fn === undefined) {
+                return console.error("jj-vdt: vdt not yet configured " + i + "!");
+            }
+        }
+    },
+    run: function (obj) {
+        vdtX.check(obj);
+        for (var i in obj) {
+            if (isPromise(vdtX.conf[i])) {
+                console.error("jj-vdt: Please use vdtX.runAsync, " + i + " is return to Promise!");
+            }
+            var end = null;
+            if (obj[i].fn === undefined) {
+                end = vdtX.conf[i](obj[i]);
+            }
+            else {
+                // 若为自定义
+                if (obj[i].fn)
+                    end = vdtRes(obj[i].fn(), obj[i].msg);
+            }
+            if (!end.res) {
+                return end;
+            }
+        }
+        return vdtRes(true);
+    },
+    runAsync: function (obj) { return __awaiter(_this, void 0, void 0, function () {
+        var _a, _b, _i, i, end, _c, _d, _e;
+        return __generator(this, function (_f) {
+            switch (_f.label) {
+                case 0:
+                    vdtX.check(obj);
+                    _a = [];
+                    for (_b in obj)
+                        _a.push(_b);
+                    _i = 0;
+                    _f.label = 1;
+                case 1:
+                    if (!(_i < _a.length)) return [3 /*break*/, 11];
+                    i = _a[_i];
+                    end = null;
+                    if (!(obj[i].msg === undefined)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, vdtX.conf[i](obj[i])];
+                case 2:
+                    end = _f.sent();
+                    return [3 /*break*/, 9];
+                case 3:
+                    if (!(obj[i].fn !== undefined)) return [3 /*break*/, 5];
+                    _c = vdtRes;
+                    return [4 /*yield*/, obj[i].fn()];
+                case 4:
+                    end = _c.apply(void 0, [_f.sent(), obj[i].msg]);
+                    return [3 /*break*/, 9];
+                case 5:
+                    if (!isPromise(obj[i].asyncFn)) return [3 /*break*/, 7];
+                    _d = vdtRes;
+                    return [4 /*yield*/, obj[i].asyncFn];
+                case 6:
+                    end = _d.apply(void 0, [_f.sent(), obj[i].msg]);
+                    return [3 /*break*/, 9];
+                case 7:
+                    _e = vdtRes;
+                    return [4 /*yield*/, obj[i].asyncFn()];
+                case 8:
+                    end = _e.apply(void 0, [_f.sent(), obj[i].msg]);
+                    _f.label = 9;
+                case 9:
+                    if (!end.res) {
+                        return [2 /*return*/, end];
+                    }
+                    _f.label = 10;
+                case 10:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 11: return [2 /*return*/, vdtRes(true)];
+            }
+        });
+    }); }
+};
 export default vdt;
 //# sourceMappingURL=index.js.map

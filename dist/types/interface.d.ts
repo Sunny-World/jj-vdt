@@ -7,10 +7,12 @@ export interface ConfStru {
         msg: string;
         default?: string;
         fn?: any;
+        asyncFn?: any;
     }> | {
         msg: string;
         default?: string;
         fn?: any;
+        asyncFn?: any;
     };
 }
 export interface ExportStuc {

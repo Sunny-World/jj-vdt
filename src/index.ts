@@ -1,8 +1,4 @@
-import {
-    ResStru,
-    ConfStru,
-    ExportStuc
-} from "./interface"
+import { ResStru, ConfStru, ExportStuc } from "./interface";
 
 const isPromise = (obj): boolean => {
     return (
@@ -10,7 +6,7 @@ const isPromise = (obj): boolean => {
         (typeof obj === "object" || typeof obj === "function") &&
         typeof obj.then === "function"
     );
-}
+};
 // 返回校验后的信息格式
 const vdtRes = (res: boolean, msg?: string): ResStru => {
     if (res) {
@@ -43,7 +39,9 @@ const vdtDefault = (type: string, val: any, msg: string): ResStru => {
                 msg
             );
         default:
-            console.error("jj-vdt:没有匹配的校验类型，请检查default值")
+            console.error(
+                "jj-vdt: There is no matching check type. Check the default value"
+            );
             return vdtRes(true, msg);
     }
 };
@@ -55,10 +53,10 @@ export const vdt = (conf: ConfStru): ExportStuc => {
         const fnArr = [];
         let isAsync = false;
         let confArr;
-        if(Object.prototype.toString.call(conf[key]) === '[object Array]'){
-            confArr=conf[key]
-        }else{
-            confArr=[conf[key]]
+        if (Object.prototype.toString.call(conf[key]) === "[object Array]") {
+            confArr = conf[key];
+        } else {
+            confArr = [conf[key]];
         }
         for (const item of confArr) {
             // 若存在默认解决办法
@@ -66,17 +64,19 @@ export const vdt = (conf: ConfStru): ExportStuc => {
                 fnArr.push(val => {
                     return vdtDefault(item.default, val, item.msg);
                 });
-            } else if (item.fn) {
+            } else if (item.fn || item.asyncFn) {
                 // 若存在自定义解决办法
-                if (isPromise(item.fn(""))) {
+                if (item.fn === undefined && item.asyncFn !== undefined) {
                     isAsync = true;
                     fnArr.push(async val => {
-                        return vdtRes(await item.fn(val), item.msg);
+                        return vdtRes(await item.asyncFn(val), item.msg);
                     });
                 } else {
-                    fnArr.push((val): ResStru => {
-                        return vdtRes(item.fn(val), item.msg);
-                    });
+                    fnArr.push(
+                        (val): ResStru => {
+                            return vdtRes(item.fn(val), item.msg);
+                        }
+                    );
                 }
             } else {
                 fnArr.push(null);
@@ -114,28 +114,72 @@ export const vdt = (conf: ConfStru): ExportStuc => {
     }
     return fn;
 };
-// const testVdt =  vdt({
-//     qq: [
-//         {
-//             msg: "不能为空",
-//             default: "empty"
-//         },
-//         {
-//             msg: "qq号填写错误",
-//             default: "qq"
-//         },
-//         {
-//             msg: "自定错误",
-//             fn: (val: any) => {
-//                 return new Promise(resolve => {
-//                     const res = val ? false : true;
-//                     resolve(res);
-//                 });
-//             }
-//         }
-//     ]
-// });
-// testVdt.qq("12345").then(res => {
-//     console.log(res);
-// });
+
+export const vdtX = {
+    conf: null,
+    init: obj => {
+        vdtX.conf = obj;
+    },
+    check: obj => {
+        if (vdtX.conf === null) {
+            return console.error(
+                "jj-vdt: vdt not yet configured, please to vdtX.init!"
+            );
+        }
+        for (const i in obj) {
+            if (/\d+/.test(i)) {
+                console.error(
+                    "jj-vdt: ${i} - Do not use numbers as keys, which can lead to orderly traversal!"
+                );
+            }
+            if (vdtX.conf[i] === undefined && obj[i].fn === undefined) {
+                return console.error(`jj-vdt: vdt not yet configured ${i}!`);
+            }
+        }
+    },
+    run: (obj): ResStru => {
+        vdtX.check(obj);
+        for (const i in obj) {
+            if (isPromise(vdtX.conf[i])) {
+                console.error(
+                    `jj-vdt: Please use vdtX.runAsync, ${i} is return to Promise!`
+                );
+            }
+            let end: ResStru = null;
+            if (obj[i].fn === undefined) {
+                end = vdtX.conf[i](obj[i]);
+            } else {
+                // 若为自定义
+                if (obj[i].fn) end = vdtRes(obj[i].fn(), obj[i].msg);
+            }
+            if (!end.res) {
+                return end;
+            }
+        }
+        return vdtRes(true);
+    },
+    runAsync: async obj => {
+        vdtX.check(obj);
+        for (const i in obj) {
+            let end: any = null;
+            if (obj[i].msg === undefined) {
+                end = await vdtX.conf[i](obj[i]);
+            } else {
+                if (obj[i].fn !== undefined) {
+                    end = vdtRes(await obj[i].fn(), obj[i].msg)
+                } else {
+                    if (isPromise(obj[i].asyncFn)) {
+                        end = vdtRes(await obj[i].asyncFn, obj[i].msg);
+                    } else {
+                        end = vdtRes(await obj[i].asyncFn(), obj[i].msg);
+                    }
+                }
+            }
+            if (!end.res) {
+                return end;
+            }
+        }
+        return vdtRes(true);
+    }
+};
 export default vdt;

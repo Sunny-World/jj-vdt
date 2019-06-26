@@ -6,11 +6,13 @@ export interface ConfStru {
     [propName: string]: Array<{
         msg: string,
         default?: string,
-        fn?: any
+        fn?: any,
+        asyncFn?: any
     }>|{
         msg: string,
         default?: string,
-        fn?: any
+        fn?: any,
+        asyncFn?: any
     }
 }
 export interface ExportStuc {
