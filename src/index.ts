@@ -20,30 +20,38 @@ const vdtRes = (res: boolean, msg?: string): ResStru => {
         };
     }
 };
+// 默认校验方法列表
+const defaultFn = {
+    empty: val => {
+        if (val === "") {
+            return false;
+        } else {
+            return true;
+        }
+    },
+    qq: val => /^[1-9][0-9]{4,}$/.test(val),
+    ip: val => /^(?:[0-9]{1,3}.){3}[0-9]{1,3}$/.test(val),
+    port: val =>
+        /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/.test(
+            val
+        ),
+    mail: val => /^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val)
+};
 // 模板校验方法
 const vdtDefault = (type: string, val: any, msg: string): ResStru => {
-    switch (type) {
-        case "empty":
-            if (val === "") {
-                return vdtRes(false, msg);
-            } else {
-                return vdtRes(true);
-            }
-        case "qq":
-            return vdtRes(/^[1-9][0-9]{4,}$/.test(val), msg);
-        case "ip":
-            return vdtRes(/^(?:[0-9]{1,3}.){3}[0-9]{1,3}$/.test(val), msg);
-        case "mail":
-            return vdtRes(
-                /^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val),
-                msg
-            );
-        default:
-            console.error(
-                "jj-vdt: There is no matching check type. Check the default value"
-            );
-            return vdtRes(true, msg);
+    if (defaultFn[type]) {
+        return vdtRes(defaultFn[type](val), msg);
+    } else {
+        console.error(
+            "jj-vdt: There is no matching check type. Check the default value"
+        );
+        return vdtRes(true, msg);
     }
+};
+export const vdtInitDefault = obj => {
+    Object.keys(obj).map(i => {
+        defaultFn[i] = obj[i];
+    });
 };
 // 注册自定义配置
 export const vdt = (conf: ConfStru): ExportStuc => {
@@ -166,7 +174,7 @@ export const vdtX = {
                 end = await vdtX.conf[i](obj[i]);
             } else {
                 if (obj[i].fn !== undefined) {
-                    end = vdtRes(await obj[i].fn(), obj[i].msg)
+                    end = vdtRes(await obj[i].fn(), obj[i].msg);
                 } else {
                     if (isPromise(obj[i].asyncFn)) {
                         end = vdtRes(await obj[i].asyncFn, obj[i].msg);

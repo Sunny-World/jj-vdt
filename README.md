@@ -136,7 +136,24 @@ console.log(Vdt.test("123").then(res => console.log(res)) )
 - empty: 校验空值
 - qq: 校验qq
 - ip: 校验ip
+- port: 校验端口
 - mail: 校验mail
+
+## 添加默认方法
+```js
+import { vdtInitDefault } from "jj-vdt"
+vdtInitDefault({
+    test: val => true
+});
+const testVdt = vdt({
+    new: [
+        {
+            msg: "test错误",
+            default: "test"
+        }
+    ]
+});
+```
 
 # 高级用法 - 流程校验用法
 一般我们我们表单校验会校验多个值，所以增加了vdtX流程方法，请不要使用数字作为key值，因为会导致对象无序遍历。

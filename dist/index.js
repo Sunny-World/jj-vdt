@@ -53,26 +53,37 @@ var vdtRes = function (res, msg) {
         };
     }
 };
+// 默认校验方法列表
+var defaultFn = {
+    empty: function (val) {
+        if (val === "") {
+            return false;
+        }
+        else {
+            return true;
+        }
+    },
+    qq: function (val) { return /^[1-9][0-9]{4,}$/.test(val); },
+    ip: function (val) { return /^(?:[0-9]{1,3}.){3}[0-9]{1,3}$/.test(val); },
+    port: function (val) {
+        return /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/.test(val);
+    },
+    mail: function (val) { return /^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val); }
+};
 // 模板校验方法
 var vdtDefault = function (type, val, msg) {
-    switch (type) {
-        case "empty":
-            if (val === "") {
-                return vdtRes(false, msg);
-            }
-            else {
-                return vdtRes(true);
-            }
-        case "qq":
-            return vdtRes(/^[1-9][0-9]{4,}$/.test(val), msg);
-        case "ip":
-            return vdtRes(/^(?:[0-9]{1,3}.){3}[0-9]{1,3}$/.test(val), msg);
-        case "mail":
-            return vdtRes(/^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val), msg);
-        default:
-            console.error("jj-vdt: There is no matching check type. Check the default value");
-            return vdtRes(true, msg);
+    if (defaultFn[type]) {
+        return vdtRes(defaultFn[type](val), msg);
     }
+    else {
+        console.error("jj-vdt: There is no matching check type. Check the default value");
+        return vdtRes(true, msg);
+    }
+};
+export var vdtInitDefault = function (obj) {
+    Object.keys(obj).map(function (i) {
+        defaultFn[i] = obj[i];
+    });
 };
 // 注册自定义配置
 export var vdt = function (conf) {

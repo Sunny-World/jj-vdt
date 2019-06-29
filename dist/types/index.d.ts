@@ -1,4 +1,5 @@
 import { ResStru, ConfStru, ExportStuc } from "./interface";
+export declare const vdtInitDefault: (obj: any) => void;
 export declare const vdt: (conf: ConfStru) => ExportStuc;
 export declare const vdtX: {
     conf: any;
