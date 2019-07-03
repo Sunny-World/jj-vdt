@@ -68,7 +68,8 @@ var defaultFn = {
     port: function (val) {
         return /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{4}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])$/.test(val);
     },
-    mail: function (val) { return /^w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*$/.test(val); }
+    phone: function (val) { return /\d{11}/.test(val); },
+    mail: function (val) { return /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/.test(val); }
 };
 // 模板校验方法
 var vdtDefault = function (type, val, msg) {
