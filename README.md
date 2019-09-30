@@ -1,5 +1,5 @@
 # jj-vdt 校验中心
-- [文档地址](https://javison666.github.io/jj-vdt/)
+- [文档地址](https://sunny-world.github.io/jj-vdt/)
 - 可以简单使用默认也可以自定义通过进行校验，非常适用于验证中心
 - 新增管道形式，适用于多重校验
 - 提供异步校验能力
@@ -293,4 +293,4 @@ vdtX.runAsync({
 
 ## 请我喝杯果汁呗～
 
-![Image text](https://github.com/Javison666/jj-vdt/blob/master/image/alipay.jpg?raw=true)![Image text](https://github.com/Javison666/jj-vdt/blob/master/image/wechat.jpg?raw=true)
+![Image text](https://github.com/sunny-world/jj-vdt/blob/master/image/alipay.jpg?raw=true)![Image text](https://github.com/sunny-world/jj-vdt/blob/master/image/wechat.jpg?raw=true)
