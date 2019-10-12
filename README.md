@@ -291,6 +291,68 @@ vdtX.runAsync({
 })
 ```
 
+## 使用案例
+vdt模块
+```js
+import {
+    vdt, vdtX, vdtInitDefault
+} from "jj-vdt"
+
+// 注入初始校验方式
+vdtInitDefault({
+    // 长度在4-16之间，包含4和16
+    length_4_16: val => val && val.length <= 16 && val.length >= 4,
+    imgCode_length: val => val && val.trim().length !== 4
+})
+
+// 注入初始校验对象
+export const Vdt = vdt({
+    account: [{
+        msg: "请输入账号",
+        default: "empty"
+    }, {
+        msg: "账号输入错误",
+        default: "length_4_16"
+    }],
+    password: [{
+        msg: "请输入密码",
+        default: "empty"
+    }, {
+        msg: "密码输入错误",
+        default: "length_4_16"
+    }],
+    imgCode: [{
+        msg: "请输入验证码",
+        default: "empty"
+    }, {
+        msg: "图形验证码错误",
+        default: "imgCode_length"
+    }]
+})
+
+vdtX.init(Vdt);
+
+export const VdtX = vdtX;
+
+export default vdtX;
+```
+
+实际使用, 校验账号、密码、图形验证码
+```js
+import {
+    VdtX
+} from "@/utils/vdt"
+
+const vdtRes = VdtX.run({
+    account: 'admin',
+    password: '123456',
+    imgCode: '1234'
+})
+if(!vdtRes.res){
+    return alert(vdtRes.msg)
+}
+```
+
 ## 请我喝杯果汁呗～
 
 ![Image text](https://github.com/sunny-world/jj-vdt/blob/master/image/alipay.jpg?raw=true)![Image text](https://github.com/sunny-world/jj-vdt/blob/master/image/wechat.jpg?raw=true)
