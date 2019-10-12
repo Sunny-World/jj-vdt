@@ -215,7 +215,7 @@ export var vdtX = {
                 console.error("jj-vdt: Please use vdtX.runAsync, " + i + " is return to Promise!");
             }
             var end = null;
-            if (obj[i].fn === undefined) {
+            if (typeof obj[i] === "object" && obj[i].fn === undefined) {
                 end = vdtX.conf[i](obj[i]);
             }
             else {

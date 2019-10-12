@@ -155,7 +155,7 @@ export const vdtX = {
                 );
             }
             let end: ResStru = null;
-            if (obj[i].fn === undefined) {
+            if (typeof obj[i] === "object" && obj[i].fn === undefined) {
                 end = vdtX.conf[i](obj[i]);
             } else {
                 // 若为自定义
