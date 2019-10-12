@@ -1,6 +1,6 @@
 {
     "name": "jj-vdt",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "validate center",
     "author": "Javison <web_jwq@163.com> (https://www.jiweiqing.cn/)",
     "main": "./dist/index.js",
