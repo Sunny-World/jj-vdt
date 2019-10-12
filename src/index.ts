@@ -155,11 +155,11 @@ export const vdtX = {
                 );
             }
             let end: ResStru = null;
-            if (typeof obj[i] === "object" && obj[i].fn === undefined) {
-                end = vdtX.conf[i](obj[i]);
-            } else {
+            if (typeof obj[i] === "object" && typeof obj[i].fn === 'function') {
                 // 若为自定义
                 if (obj[i].fn) end = vdtRes(obj[i].fn(), obj[i].msg);
+            } else {
+                end = vdtX.conf[i](obj[i]);
             }
             if (!end.res) {
                 return end;
