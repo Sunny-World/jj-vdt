@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -34,6 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 var isPromise = function (obj) {
     return (!!obj &&
         (typeof obj === "object" || typeof obj === "function") &&
@@ -81,13 +83,13 @@ var vdtDefault = function (type, val, msg) {
         return vdtRes(true, msg);
     }
 };
-export var vdtInitDefault = function (obj) {
+exports.vdtInitDefault = function (obj) {
     Object.keys(obj).map(function (i) {
         defaultFn[i] = obj[i];
     });
 };
 // 注册自定义配置
-export var vdt = function (conf) {
+exports.vdt = function (conf) {
     var fn = {};
     var list = Object.keys(conf);
     var _loop_1 = function (key) {
@@ -190,28 +192,28 @@ export var vdt = function (conf) {
     }
     return fn;
 };
-export var vdtX = {
+exports.vdtX = {
     conf: null,
     init: function (obj) {
-        vdtX.conf = obj;
+        exports.vdtX.conf = obj;
     },
     check: function (obj) {
-        if (vdtX.conf === null) {
+        if (exports.vdtX.conf === null) {
             return console.error("jj-vdt: vdt not yet configured, please to vdtX.init!");
         }
         for (var i in obj) {
             if (/\d+/.test(i)) {
                 console.error("jj-vdt: ${i} - Do not use numbers as keys, which can lead to orderly traversal!");
             }
-            if (vdtX.conf[i] === undefined && obj[i].fn === undefined) {
+            if (exports.vdtX.conf[i] === undefined && obj[i].fn === undefined) {
                 return console.error("jj-vdt: vdt not yet configured " + i + "!");
             }
         }
     },
     run: function (obj) {
-        vdtX.check(obj);
+        exports.vdtX.check(obj);
         for (var i in obj) {
-            if (isPromise(vdtX.conf[i])) {
+            if (isPromise(exports.vdtX.conf[i])) {
                 console.error("jj-vdt: Please use vdtX.runAsync, " + i + " is return to Promise!");
             }
             var end = null;
@@ -221,7 +223,7 @@ export var vdtX = {
                     end = vdtRes(obj[i].fn(), obj[i].msg);
             }
             else {
-                end = vdtX.conf[i](obj[i]);
+                end = exports.vdtX.conf[i](obj[i]);
             }
             if (!end.res) {
                 return end;
@@ -234,7 +236,7 @@ export var vdtX = {
         return __generator(this, function (_f) {
             switch (_f.label) {
                 case 0:
-                    vdtX.check(obj);
+                    exports.vdtX.check(obj);
                     _a = [];
                     for (_b in obj)
                         _a.push(_b);
@@ -245,7 +247,7 @@ export var vdtX = {
                     i = _a[_i];
                     end = null;
                     if (!(obj[i].msg === undefined)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, vdtX.conf[i](obj[i])];
+                    return [4 /*yield*/, exports.vdtX.conf[i](obj[i])];
                 case 2:
                     end = _f.sent();
                     return [3 /*break*/, 9];
@@ -282,5 +284,5 @@ export var vdtX = {
         });
     }); }
 };
-export default vdt;
+exports.default = exports.vdt;
 //# sourceMappingURL=index.js.map
